@@ -1,17 +1,53 @@
-# Brief
+# Tema 1. Monitor del sistema y mapa mental del ordenador
 
-Vas a hacer en tu propio ordenador el viaje completo que recorre el submódulo: lanzar un programa que dé lugar a un proceso, identificar ese proceso con sus herramientas (PID, puerto), cerrarlo limpiamente y dejar documentado cada paso. No hace falta servidor remoto, red corporativa ni nada externo: todo se hace en tu máquina con un servidor estático mínimo que ya viene incluido en cualquier instalación moderna.
+## Tarea 1 — Reconocer tu monitor del sistema
 
-Al terminar tendrás un mini-informe que puedes pegar tal cual en el README del proyecto del Roadmap como una entrada de glosario reforzada con ejemplo real.
+Abre el monitor del sistema correspondiente a tu sistema operativo:
+* **macOS**: Monitor de Actividad (Aplicaciones → Utilidades).
+* **Windows**: Administrador de tareas (Ctrl + Shift + Esc).
+* **Linux**: System Monitor gráfico o htop en la terminal.
 
-# Objetivos de aprendizaje
+Identifica las columnas que muestran:
+* Uso de **CPU** (suele estar en porcentaje).
+* Consumo de **RAM** o memoria (en MB o GB).
+* Estado o consumo de **disco** (a veces como pestaña aparte).
 
-* Distinguir en la práctica entre **archivo ejecutable** (lo que invocas) y **proceso** (lo que aparece vivo en el monitor del sistema).
-* Identificar un proceso por nombre, por PID y por el puerto que ocupa.
-* Cerrar un proceso de forma limpia con `kill` (SIGTERM) y, si no responde, forzarlo con `kill -9` (SIGKILL).
-* Leer mensajes como `EADDRINUSE` o "puerto en uso" y traducirlos a la pregunta correcta: "¿qué PID lo está usando?"
+Anota los **tres procesos** que más CPU consumen en este momento y los **tres que más RAM** consumen. Pueden coincidir o no.
 
-# Enunciado
+## Tarea 2 — Provocar un pico observable
+
+Vamos a provocar, de forma segura, una situación en la que una pieza concreta se ponga a trabajar. Elige UNA de las opciones:
+* **Pico de CPU**: abre el navegador, ve a una página interactiva exigente (un juego HTML, una visualización con muchas animaciones) y déjala correr 30 segundos mientras miras el monitor.
+* **Pico de RAM**: abre 20 pestañas distintas en el navegador con páginas pesadas (vídeos en pausa, redes sociales, mapas). Mira cómo sube el consumo de memoria del navegador.
+* **Pico de disco**: copia una carpeta grande (varios GB) de un sitio a otro del disco, o duplica un archivo grande. Observa la actividad de disco mientras la copia está en curso.
+
+Describe en 3-5 líneas qué cambió en el monitor durante el experimento (porcentajes antes y después, qué proceso destacaba).
+
+> No hace falta dejar el ordenador al límite durante mucho rato. Con ver el pico ya basta. Si en algún momento el ordenador empieza a ir incómodo, cierra lo que abriste y termina.
+
+## Tarea 3 — Lectura de un mensaje hipotético
+
+Lee este escenario y escribe en 4-6 líneas qué pieza está sufriendo y qué harías a continuación:
+
+> Te escribe un compañero por chat: "Mi ordenador va lentísimo desde hace 10 minutos. Sólo tengo Chrome con 40 pestañas, VS Code abierto y un proyecto de vídeo que no he terminado. El ventilador hace un ruido tremendo y la CPU está al 95 % en el monitor según me dice. El disco está al 70 %. Tengo 8 GB de RAM."
+
+Pista: piensa en cuál de las cuatro piezas (CPU, RAM, disco, SO) tiene el síntoma más claro, y qué dos acciones concretas le sugerirías.
+
+## Entrega final — Glosario del README
+
+Añade al README inicial del repo del módulo (o crea un archivo `glosario.md` si todavía no tienes README) **cuatro entradas**, una por cada pieza estudiada. Cada entrada debe tener:
+* **Nombre técnico** en negrita (ej. **CPU**).
+* **Una frase** con la definición en tus propias palabras (no copies y pegues de internet).
+* **Una analogía cotidiana** que te ayude a recordarla.
+* **Un ejemplo** real de algo que has visto hoy en el monitor del sistema relacionado con esa pieza.
+
+Ejemplo de cómo debe quedar una entrada (para que veas el formato):
+
+> **RAM**: la memoria de trabajo del ordenador, donde viven los datos que están usando los programas ahora mismo. Es como la mesa de un cocinero: caben pocas cosas, pero todas a mano. Hoy he visto Chrome consumiendo 1,8 GB de RAM en mi monitor del sistema.
+
+----
+
+# Tema 2. Qué es un progrmaa, un proceso y un archivo ejecutable
 
 Sigue los pasos en este orden. Cada paso pide una captura o un texto copiado del terminal que vas a juntar al final en un único documento.
 
@@ -134,8 +170,80 @@ Si trabajas con Windows, los comandos cambian. Los equivalentes son:
 
 Los pasos 1-8 se mantienen igual; sólo cambia la sintaxis de los comandos.
 
+----
 
-# glosario
+# Tema 3. Tipos de software: aplicación, libería, frmaework, servicio
 
+## Paso 1 — Clasifica las 15 piezas de la lista
+
+A continuación tienes 15 piezas de software muy comunes. Para cada una, asigna **una sola categoría** (aplicación , librería , framework o servicio) y escribe una justificación de **1-2 líneas**. La justificación tiene que mencionar al menos uno de estos tres criterios:
+
+* Quién la usa (humano vs programador vs otra app).
+* Quién lleva el control (tú la llamas vs ella te llama).
+* Dónde corre (en tu proyecto vs en otra máquina por red).
+
+Lista de piezas a clasificar:
+
+1. Spotity
+2. React
+3. lodash
+4. api.stripe.com
+5. Django
+6. Visual Studio Code
+7. Google Chrome
+8. NumPy
+9. Express
+10. WhatsApp
+11. api.openai.com
+12. date-fns
+13. Next.js
+14. Excel
+15. api.github.com
+
+## Paso 2 — Caso frontera: React
+
+React se autodenomina "librería de UI" pero la mayoría de los desarrolladores lo trata como framework. Explica en **3-4 líneas** por qué tiene sentido considerarlo como framework cuando piensas en quién dirige el flujo (pista: piensa en cuándo se ejecuta tu componente y quién decide cuándo se renderiza).
+
+## Paso 3 — Dibuja tu propio stack
+
+Elige un escenario familiar de los siguientes (el que más te suene):
+* **Opción A — Tu ordenador hoy**: cinco programas que tienes abiertos en este momento.
+* **Opción B — Una app que usas a diario**: por ejemplo Instagram, Google Maps o tu app de banca. Imagínate por dentro las piezas que podría tener.
+* **Opción C — Un proyecto en el que has tocado código** (si ya has tocado alguno)
+
+Para el escenario elegido, dibuja un esquema sencillo (papel, Excalidraw, Miro, lo que prefieras) con:
+* La **aplicación** en el centro.
+* Una flecha hacia abajo a las **librerías** y **frameworks** que imaginas o sabes que usa por dentro.
+* Una flecha hacia fuera (típicamente hacia un dibujo de "internet") a los **servicios** remotos con los que se comunica.
+
+Tiene que caber en una sola pantalla o folio. El objetivo no es ser exacto sino entrenar la mirada: para cualquier app que uses, ya empiezas a identificar las cuatro capas.
+
+## Paso 4 — Cuatro entradas para el glosario
+
+Redacta cuatro entradas para el glosario del README del proyecto. Cada entrada sigue este formato (3-4 líneas máximo):
+```
+**Categoría** (Nombre humano): explicación con tus palabras.
+Ejemplo real: una pieza de la lista del paso 1 que pertenezca a esta
+categoría, con una línea de por qué.
+```
+
+Las cuatro entradas son: aplicación, librería, framework y servicio.
+
+---
+
+# Glosario
+
+* **Aplicación**: Es la parte que el humano interactúa con ella, fruto del desarrollo final de un proyecto y la parte bonita, visual e interactiva de esta hecha para los humanos, con botones, menús, imágenes, etc...
+	- Ejemplo real: Spotify, es una aplicación porque ofrece únicamente una interfaz gráfica y es el humano el que interactúa con ella, aunque sea una página web su forma de aplicación (menús y botones interactuables).
+* **CPU**: pieza fundamental de un ordenador, es el procesador principal que ejecuta instrucciones en lengaje máquina y tiene varios mecanismos de caché muy pequeños pero extremadamente rápidos. Es como el cocinero en una cocina que ejecuta los platos, un mismo cocinero puede trabajar en paralelo en varios platos hasta cierto límite y cierto número de platos. La forma de medirse es en % de trabajo, donde cada proceso ocupa una parte de % y si la suma de todo llega al 100% de ocupación es que está saturado de trabajo. He visto hoy algún proceso de CPU al 14% que era el administrador de tareas justo en el momento de abrirse.
+* **Disco**: la memoria permanente donde residen los datos de usuario y el propio sistema operativo. Esto equivale en una cocina al almacén donde están los productos siempre disponibles y bien almacenados y la temperatura correcta. Actualmente existen de estado sólido y duros puros mecánicos (más lentos, en órdenes de magnitud). Es la dispositivo más lento de los componnentes físicos junto con la CPU y memoria, pero su capacidad es órdenes de magnitud más elevado que la memoria RAM. Se mide en velocidad de acceso lectura o escritura en MB/s. He visto en un momento dado 0.1 MB/s aunque cuando se está copiano un archivo esto crece a miles de MB/s.
+* **Framework**: Código que proporciona un punto de partida inicial a un proyecto y una estructura sólida que se utiliza para llamar al código que se genera a posteriori de su implantación y permite un punto de partida mucho más avanzado obviando los detalles de más bajo nivel y que en definitiva sirve para agilizar en mucho tiempo la creación de proyectos respecto como se hacía con código nativo. Es el _framework_ el que llama al código, no al revés, y hay que seguir las normas y criterios establecidos para que la aplicación funcione. Un framework es algo bastante pesados con muchas piezas interconectadas y utiliza normalmente muchas o varias librerías para poder funcionar correctamente.
+	- Ejemplo real: **Django**, siendo para Python es un popular framework que está tomando bastante fama para desarrollo web rápido con sus ventajas e inconvenientes respecto a **Flask**. Es un framework porque proporciona la base que llamará a nuestro código creando rutas web, controladores, vistas y modelos.
+* **Librería**: Pieza o parte de código desarrollado para poderse llamar desde el código fuente que se está desarrollando que proporciona una ayuda a nuestra aplicación para aplicar funcionalidades bien establecidas, evitando así errores y que se pueden reutilizar en otros poryectos. Se llama desde el código fuente del proyecto a demanda, y no viceversa, y se pueden utilizar como y cuando se quiera. Para ello hay que importarlas y copiarlas primero o generarlas mediante herramientas automatizadas de consola de descarga de paquetes como `npm` (node), `composer` (php) o `maven` (java). Suelen estar bien depuradas y ser seguras para los desarrolladores si están en constante proceso de evolución y mejora.
+	- Ejemplo real: **lodash**, es una librería porque lo indica el pripio fabricante, y su forma de trabajar es que tenemos que llamarla nosotros explícitamente e invocar a las funciones y métodos que contiene.
 * **PID**: Process Identifier. Es un número único y aleatorio que asigna el propio SO a un proceso en ejecución, para identificarlo por un número entero de forma única e inequívoca, no tiene por qué ocupar el mismo PID un proceso que se ejecute una y otra vez.
-* **proceso**: Es el nombre del proceso en sí, que no tiene por qué coincidir con el archivo ejecutable. Y puede tener varias instancias, por ejemplo **Google chrome** si se está ejecutando en multihilo en distintos cores, pero cada hijo tiene su PID distinto.
+* **Proceso**: Es el nombre del proceso en sí, que no tiene por qué coincidir con el archivo ejecutable. Y puede tener varias instancias, por ejemplo **Google chrome** si se está ejecutando en multihilo en distintos cores, pero cada hijo tiene su PID distinto.
+* **RAM**: la memoria de trabajo del ordenador, donde viven los datos que están usando los programas ahora mismo. Es volátil y gestionada por el SO. Es como la mesa de un cocinero: caben pocas cosas, pero todas a mano. Hoy he visto Chrome consumiendo 1,8 GB de RAM en mi monitor del sistema.
+* **Servicio**: Punto en red de llamada que proporciona una interfaz de comunicación de datos entre la aplicación y un servidor, pero no está pensado para que el usuario o humano interactúe con él. Se comunica mediante una **API** que los propios desarrolladores del servicio otorgan a los desarrolladores para que sepan como se utilizan.
+	- Ejemplo real: **api.stripe.com**, por convenito, todas las url que empiezan con **api** vienen a denotar que es un servicio web que proporciona un punto de entrada de datos y se usa como **API**, mediante llamadas concretas cerradas, datos enviados y datos devueltos en remoto.
+* **Sistema operativo**: Es el que maneja los dispositivos a bajo nivel y hace de puente entre el usuario y estos dispositivos. Cualquier llamada a un dispositivo de bajo nivel tiene que pasar por el sistema operativo previamente, no se puede acceder directamente a disco ni memoria RAM sin que el sistema de permiso previo porque es quien controla las zonas de bloqueo de memoria o qué parte del disco está libre u ocupado. Es el equivalente a un chef de cocina que orquestra todos los componentes y personal. No existe un medidor de esta parte, que mencione su estado de ocupación.

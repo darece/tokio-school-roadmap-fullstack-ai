@@ -85,4 +85,4 @@ Node.js v24.15.0
 
 # Tarea 8 - Explicación de proceso VS. PID
 
-Ver en README.
+Ver en README/Glosario.
