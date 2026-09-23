@@ -229,12 +229,111 @@ categoría, con una línea de por qué.
 
 Las cuatro entradas son: aplicación, librería, framework y servicio.
 
+----
+
+# Tema 4. Caza de mojibake - Bytes, codificaciones y tildes rotas
+
+## Brief
+
+Vas a provocar tú mismo el clásico **mojibake** (texto roto tipo `maÃ±ana`) en tu ordenador, observar los bytes reales que hay dentro de un archivo de texto y entender exactamente por qué a veces ves `Ã±` donde debería poner `ñ` . El ejercicio no tiene programación: se hace con tu editor de código y un comando de terminal. Termina con cuatro entradas para el glosario del README del proyecto del Roadmap (bit, byte, ASCII, UTF-8).
+
+## Objetivos de aprendizaje
+
+* Comprobar con tus ojos que una `ñ` ocupa 2 bytes en UTF-8 y un emoji ocupa 4.
+* Provocar a propósito un mojibake guardando un archivo en una codificación y abriéndolo con otra.
+* Leer los bytes reales de un archivo con xxd , hexdump o el equivalente Windows.
+* Redactar entradas concisas para el glosario del proyecto.
+
+## Enunciado
+
+### 1. Crea el archivo de prueba
+
+Abre tu editor de código (VS Code, Sublime, Notepad++, lo que uses) y crea un archivo llamado prueba.txt con esta única línea:
+
+```
+Hola mañana 😀
+```
+
+Asegúrate de que el editor está guardando en **UTF-8**. En VS Code lo ves en la barra inferior; haz clic ahí y selecciona "Save with Encoding → UTF-8" si no lo estaba.
+
+**Entregable del paso 1**: una captura del archivo guardado y la codificación visible en la barra del editor.
+
+### 2. Mira los bytes reales del archivo
+
+Abre una terminal en la carpeta donde guardaste `prueba.txt` y ejecuta el comando adecuado para tu sistema:
+```
+# macOS o Linux
+xxd prueba.txt
+```
+
+```
+# Windows (PowerShell)
+Format-Hex prueba.txt
+```
+
+Vas a ver algo parecido a esto (los bytes pueden cambiar según finales de línea y el emoji exacto que uses):
+```
+00000000: 486f 6c61 206d 61c3 b16e 6120 f09f 9880 Hola ma..na ....
+```
+
+Identifica:
+* Los bytes que representan la palabra `Hola` (4 bytes, uno por letra ASCII).
+* Los **dos** bytes que representan la `ñ` (típicamente `c3 b1`).
+* Los **cuatro** bytes que representan el emoji 😀 (típicamente `f0 9f 98 80`).
+
+**Entregable del paso 2**: pega la salida del comando y rodea manualmente (con un comentario, una captura editada o lo que prefieras) los bytes que corresponden a la `ñ` y al emoji.
+
+### 3. Provoca el mojibake en directo
+
+Reabre `prueba.txt` en tu editor **indicando que lo abra como Latin-1** (en VS Code: "Reopen with Encoding → Western (ISO 8859-1)"; en Notepad++: menú "Encoding → Character sets → Western European").
+
+Si todo va bien deberías ver algo como:
+```
+Hola maÃ±ana ð😀
+```
+
+Lo importante es que **el archivo en disco no ha cambiado**: los bytes siguen siendo los mismos. Lo único que cambia es la interpretación.
+
+> 📌 Si tu editor no permite reabrir con otra codificación, abre el mismo archivo con un editor distinto (por ejemplo Notepad++ en Windows o `iconv` en terminal) forzando Latin-1.
+
+**Entregable del paso 3**: captura del archivo abierto con la codificación equivocada, mostrando el mojibake.
+
+### 4. Vuelve a UTF-8 sin perder datos
+
+Cierra el archivo **sin guardar** (esto es importante: si lo guardas mientras estás viendo el mojibake, fijarás los bytes en su forma incorrecta) y reábrelo indicando UTF-8.
+
+Debes volver a ver:
+```
+Hola mañana 😀
+```
+
+**Entregable del paso 4**: captura mostrando que el archivo se ve bien de nuevo, sin haber tenido que modificarlo.
+
+### 5. Cuatro preguntas cortas
+
+Contesta cada pregunta en 1-2 líneas como máximo:
+1. ¿Cuántos bytes ocupó la `ñ` en tu archivo? ¿Y el emoji 😀?
+2. Cuando viste `Ã±` en el paso 3, ¿el archivo en disco había cambiado? ¿Por qué entonces se veía mal?
+3. Si tu compañera te envía un .txt y lo abres en Excel y los acentos aparecen como `Ã©`, ¿qué codificación está asumiendo Excel y qué tendría que cambiar?
+4. ¿Por qué la mayoría de proyectos web añaden `<meta charset="utf-8">` en el `<head>`?
+
+### 6. Glosario del proyecto
+
+Redacta cuatro entradas para el glosario del README del Roadmap. Cada entrada tiene este formato (3-4 líneas máximo):
+
+> **Término** — definición con tus palabras + ejemplo concreto del ejercicio (por ejemplo: "la `ñ` ocupó 2 bytes: c3 b1").
+
+Los cuatro términos son: **bit**, **byte**, **ASCII** y **UTF-8**.
+
 ---
 
 # Glosario
 
 * **Aplicación**: Es la parte que el humano interactúa con ella, fruto del desarrollo final de un proyecto y la parte bonita, visual e interactiva de esta hecha para los humanos, con botones, menús, imágenes, etc...
 	- Ejemplo real: Spotify, es una aplicación porque ofrece únicamente una interfaz gráfica y es el humano el que interactúa con ella, aunque sea una página web su forma de aplicación (menús y botones interactuables).
+* **ASCII**: American Stantardard Code for Information Interchange. Es una forma de hacer que se puedarn representar un conjunto reducido de caracteres ingleses (que no incluyen letas con acentos), número y algunos símbolos (interrogante, eclamación, almohadilla, signos...) y caracteres de control (salto de línea, pitido, vacío). Sirve para que una secuencia de bytes pueda simbolidar caracteres al ser leídos como texto, plano, pues al fin y al cabo todo son 0 y 1's en una computadora. Existe un ascii extendido por país que aprovecha que el 8o bit de la izquierda de convierta en un 1, y eso permite jugar con 127 caractres extra, así pues, podemos por ejemplo asumir que si la letra n es en ascii 01101110b en binario, 6Eh en hexa, pues al poner cambiar el 0 de delante a uno (**1**1101110b o CEh), esto que simbolice la `ñ` (aunque en realidad para ISO 8859-1 la `ñ` es F1h). **En resumen, en ascii cada caracter ocupa un byte siempre**.
+* **Bit**: unidad mínima de información detectable en un ordenador, que solo puede tener dos valores: 0 o 1, o apagado y encendido.
+* **Byte**: secuencia de 8 bits que forman un único conjunto inseparable y es la unidad mínima de información que se permite hoy día en los ordenadores, por comidad y convenio, y porque en su forma hexadecimal lo hace muy fácil de representar, con solo dos caracteres del 0 a la F (del 0 al 15). Ej: F0h = 11110000b. Se pueden representar 255 valores posibles.
 * **CPU**: pieza fundamental de un ordenador, es el procesador principal que ejecuta instrucciones en lengaje máquina y tiene varios mecanismos de caché muy pequeños pero extremadamente rápidos. Es como el cocinero en una cocina que ejecuta los platos, un mismo cocinero puede trabajar en paralelo en varios platos hasta cierto límite y cierto número de platos. La forma de medirse es en % de trabajo, donde cada proceso ocupa una parte de % y si la suma de todo llega al 100% de ocupación es que está saturado de trabajo. He visto hoy algún proceso de CPU al 14% que era el administrador de tareas justo en el momento de abrirse.
 * **Disco**: la memoria permanente donde residen los datos de usuario y el propio sistema operativo. Esto equivale en una cocina al almacén donde están los productos siempre disponibles y bien almacenados y la temperatura correcta. Actualmente existen de estado sólido y duros puros mecánicos (más lentos, en órdenes de magnitud). Es la dispositivo más lento de los componnentes físicos junto con la CPU y memoria, pero su capacidad es órdenes de magnitud más elevado que la memoria RAM. Se mide en velocidad de acceso lectura o escritura en MB/s. He visto en un momento dado 0.1 MB/s aunque cuando se está copiano un archivo esto crece a miles de MB/s.
 * **Framework**: Código que proporciona un punto de partida inicial a un proyecto y una estructura sólida que se utiliza para llamar al código que se genera a posteriori de su implantación y permite un punto de partida mucho más avanzado obviando los detalles de más bajo nivel y que en definitiva sirve para agilizar en mucho tiempo la creación de proyectos respecto como se hacía con código nativo. Es el _framework_ el que llama al código, no al revés, y hay que seguir las normas y criterios establecidos para que la aplicación funcione. Un framework es algo bastante pesados con muchas piezas interconectadas y utiliza normalmente muchas o varias librerías para poder funcionar correctamente.
@@ -247,3 +346,4 @@ Las cuatro entradas son: aplicación, librería, framework y servicio.
 * **Servicio**: Punto en red de llamada que proporciona una interfaz de comunicación de datos entre la aplicación y un servidor, pero no está pensado para que el usuario o humano interactúe con él. Se comunica mediante una **API** que los propios desarrolladores del servicio otorgan a los desarrolladores para que sepan como se utilizan.
 	- Ejemplo real: **api.stripe.com**, por convenito, todas las url que empiezan con **api** vienen a denotar que es un servicio web que proporciona un punto de entrada de datos y se usa como **API**, mediante llamadas concretas cerradas, datos enviados y datos devueltos en remoto.
 * **Sistema operativo**: Es el que maneja los dispositivos a bajo nivel y hace de puente entre el usuario y estos dispositivos. Cualquier llamada a un dispositivo de bajo nivel tiene que pasar por el sistema operativo previamente, no se puede acceder directamente a disco ni memoria RAM sin que el sistema de permiso previo porque es quien controla las zonas de bloqueo de memoria o qué parte del disco está libre u ocupado. Es el equivalente a un chef de cocina que orquestra todos los componentes y personal. No existe un medidor de esta parte, que mencione su estado de ocupación.
+* **UTF-8**. Es una forma de intrepretar o codificar **Unicode**, permite compatibilidad con ASCII puro al 100%, de forma que un texto 100% en ASCII se verá igual en UTF-8 que en ASCII sin necesidad de recodificar. Incluye un formato tan elegante y sencillo que permite no solo que al abrirlo en cualquier otra codificación se intuya todos los caracteres de ASCII normal, sino que además permite cientos de miles de caractres extra incluyeno emoticonos, a costa de requerir algo de espacio extra. En concreto los caracteres de países, acentuados o especiales ocupan un byte extra (2 en total) y los emojis 4 (que no podrían ser representados en ASCII normal ni extendido). En el ejemplo del ejercicio la letra `ñ` ocupaba 2 bytes: `c3 b1`, mientras que el emoji de cara sonriente ocupaba 4.
