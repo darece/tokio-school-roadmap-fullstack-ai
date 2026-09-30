@@ -471,6 +471,134 @@ Contesta cada una en 1-2 líneas como máximo:
 
 ----
 
+# Tema 6. Diseccionando una petición web - Del clic al servidor
+
+## Tarea 1. Resuelve la IP del dominio
+
+Elige un dominio público. Vamos a usar tokioschool.com como ejemplo; puedes cambiarlo por otro si quieres ( `github.com`, `wikipedia.org`).
+```
+# macOS / Linux
+dig tokioschool.com +short
+# Windows
+nslookup tokioschool.com
+```
+
+Apunta la **IP** (o IPs) que recibes. Si te llegan varias, fíjate: los servicios grandes suelen tener varias IPs por dominio para repartir la carga (el llamado _0round robin_ DNS o un CDN).
+
+**Entregable del paso 1**: el comando que ejecutaste y la IP resultante.
+
+## Tarea 2. Mide la latencia con ping
+
+```
+# Envía 4 paquetes (en Windows, sin -c; usa -n 4)
+
+ping -c 4 tokioschool.com
+```
+
+Observa cuántos milisegundos tarda cada paquete y si alguno se pierde. Una latencia de 10-30 ms es muy buena (servidor cercano); más de 200 ms empieza a ser lento (servidor lejano o saturado).
+
+**Entregable del paso 2**: pega la salida del `ping` y comenta en una línea cuál fue la latencia
+media.
+
+## Tarea 3. Traza el recorrido del paquete
+
+```
+# macOS / Linux
+traceroute tokioschool.com
+# Windows
+tracert tokioschool.com
+```
+
+Cada línea es un **salto** (un router intermedio) que el paquete atraviesa para llegar al destino. Verás varias direcciones hasta llegar al servidor final. Lo normal son entre 8 y 20 saltos.
+
+**Entregable del paso 3**: pega la salida (puedes truncarla si es muy larga) y cuenta cuántos
+saltos hubo en total.
+
+## Tarea 4. Mira las cabeceras HTTP con curl
+
+```
+curl -I https://tokioschool.com
+```
+
+`-I` pide solo las cabeceras (`HEAD`), sin descargar el cuerpo. Vas a ver el código de estado (`HTTP/1.1 200 OK` o similar), el tipo de contenido, información sobre caché y a veces el servidor web que está respondiendo (`Server: nginx`, `Server: Apache`...).
+
+**Entregable del paso 4**: pega la salida y resalta el código de estado y el servidor (si aparece).
+
+## Tarea 5. Disección de una URL
+
+Rellena la tabla siguiente analizando esta URL:
+
+```
+https://tokioschool.com:443/cursos/desarrollo-web?nivel=junior&modalidad=online#temario
+```
+
++-------------------+--------------------------------------------------------------+
+|	Pieza			|	Valor													   |
++-------------------+--------------------------------------------------------------+
+|Esquema 			||
+|Host 				||
+|Puerto 			||
+|Ruta (path)		||
+|Query string		||
+|Parámetros del query||
+|Fragmento			||
++-------------------+--------------------------------------------------------------+
+
+**Entregable del paso 5**: la tabla rellena.
+
+## Tarea 6. Provoca dos errores a propósito
+
+**6.1 Error DNS**
+
+Escribe en tu navegador un dominio con un typo, por ejemplo `https://tokioscholl.com` (sin la o final). Anota el error exacto que sale. En navegadores Chromium suele ser `DNS_PROBE_FINISHED_NXDOMAIN`.
+
+**6.2 Error de conexión rechazada**
+
+Intenta conectarte con `curl` a un puerto en el que no hay nadie escuchando en tu propia máquina:
+
+```
+curl http://localhost:9999
+```
+
+(Asegúrate de que el puerto 9999 no tenga ningún servidor escuchando; si lo tiene, prueba con 9998, 19999 o cualquier número alto raro.)
+
+Anota el error exacto. Será algo como `Failed to connect to localhost port 9999: Connection
+refused`.
+
+**Entregable del paso 6**: el mensaje literal de cada error y una línea indicando en qué eslabón del viaje está el problema (DNS, conexión TCP, ruta, servidor...).
+
+## Tarea 7. Dibuja el diagrama del viaje
+
+En una sola página (Excalidraw, Miro, papel, lo que prefieras), dibuja el viaje completo cuando un usuario teclea `https://tokioschool.com` y le da a Enter. El diagrama tiene que incluir:
+* El **navegador** del usuario (cliente).
+* La consulta al **DNS** y la IP resultante.
+* La **conexión TCP** al servidor (IP + puerto 443).
+* La **petición HTTP** con la ruta.
+* La **respuesta** del servidor.
+
+Etiqueta cada flecha con lo que está pasando ("pregunta IP", "devuelve IP", "abre conexión", "GET /", "200 OK + HTML"). El objetivo no es elegancia gráfica sino que cada pieza esté nombrada.
+
+**Entregable del paso 7**: captura o foto del diagrama.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----
+
 # Glosario
 
 * **Aplicación**: Es la parte que el humano interactúa con ella, fruto del desarrollo final de un proyecto y la parte bonita, visual e interactiva de esta hecha para los humanos, con botones, menús, imágenes, etc...
@@ -479,13 +607,16 @@ Contesta cada una en 1-2 líneas como máximo:
 * **Bit**: unidad mínima de información detectable en un ordenador, que solo puede tener dos valores: 0 o 1, o apagado y encendido.
 * **Build**: Es una herramienta o proceso de traspilación que es una especie de compilador que adapta un código fuente a un destino con un propósito específico, por ejemplo producción. Y organiza el código, paquetiza o minimiza para al final hacerlo lo más óptimo posible para su ejecución. Un ejemplo de transpilador o build es next, que traduce typescript a javascript.
 * **Byte**: secuencia de 8 bits que forman un único conjunto inseparable y es la unidad mínima de información que se permite hoy día en los ordenadores, por comidad y convenio, y porque en su forma hexadecimal lo hace muy fácil de representar, con solo dos caracteres del 0 a la F (del 0 al 15). Ej: F0h = 11110000b. Se pueden representar 255 valores posibles.
+* **Cliente**: Es una aplicación o el que lanza una petición bajo demanda a un servidor, esperando obtener una respuesta. Literalmente "es el que llama". Puede ser tanto una app de móvil que se conecta a un servidor para obtener respuestas (**Spotify**) como un navegador (en este caso **Chorme**) que accede a una url para obtener una página web y renderizarla. Además hay clientes de consola, como **mysql** o comandos directos como **curl**.
 * **Código fuente**: Es el programa completo o fragmento de programa con una sintaxis legible a nivel humano, normalmente en inglés, que agrupa las instrucciones, datos y estructuras que formarán un programa y cada uno tiene un lenguaje diferente que dependiendo de la herramienta que lo ejecute o interprete será un lenguaje u otro, cada uno con características peculiares y diferentes a tener en cuanta para su propósito final y cliente.
 * **Compilador**: Herramienta que traduce un lenguaje de alto noviel o código fuente a lenguaje máquina interprestable por la CPU.
 * **CPU**: pieza fundamental de un ordenador, es el procesador principal que ejecuta instrucciones en lengaje máquina y tiene varios mecanismos de caché muy pequeños pero extremadamente rápidos. Es como el cocinero en una cocina que ejecuta los platos, un mismo cocinero puede trabajar en paralelo en varios platos hasta cierto límite y cierto número de platos. La forma de medirse es en % de trabajo, donde cada proceso ocupa una parte de % y si la suma de todo llega al 100% de ocupación es que está saturado de trabajo. He visto hoy algún proceso de CPU al 14% que era el administrador de tareas justo en el momento de abrirse.
 * **Disco**: la memoria permanente donde residen los datos de usuario y el propio sistema operativo. Esto equivale en una cocina al almacén donde están los productos siempre disponibles y bien almacenados y la temperatura correcta. Actualmente existen de estado sólido y duros puros mecánicos (más lentos, en órdenes de magnitud). Es la dispositivo más lento de los componnentes físicos junto con la CPU y memoria, pero su capacidad es órdenes de magnitud más elevado que la memoria RAM. Se mide en velocidad de acceso lectura o escritura en MB/s. He visto en un momento dado 0.1 MB/s aunque cuando se está copiano un archivo esto crece a miles de MB/s.
+* **DNS**: **Domain Name Server**, es un servidor que traduce un nombre de dominio (en su forma `host.ext`) a la **dirección IP** que corresponda, habiendo muchos de una forma escalonada para agilizar esta búsqueda, formando cachés, servidores intermedios y demás para que no todo dependa de uno solo y en caso de cambio de este haya una propagación entre todos los servidores afectados por el cambio en un tiempo relativamente rápido.
 * **Framework**: Código que proporciona un punto de partida inicial a un proyecto y una estructura sólida que se utiliza para llamar al código que se genera a posteriori de su implantación y permite un punto de partida mucho más avanzado obviando los detalles de más bajo nivel y que en definitiva sirve para agilizar en mucho tiempo la creación de proyectos respecto como se hacía con código nativo. Es el _framework_ el que llama al código, no al revés, y hay que seguir las normas y criterios establecidos para que la aplicación funcione. Un framework es algo bastante pesados con muchas piezas interconectadas y utiliza normalmente muchas o varias librerías para poder funcionar correctamente.
 	- Ejemplo real: **Django**, siendo para Python es un popular framework que está tomando bastante fama para desarrollo web rápido con sus ventajas e inconvenientes respecto a **Flask**. Es un framework porque proporciona la base que llamará a nuestro código creando rutas web, controladores, vistas y modelos.
 * **Intérprete**: Herramienta que ejecuta lenguaje de alto nivel o código fuente línea a línea en tiempo de ejecución para los lenguajes que así lo requieren. Son ejemplo de lengauejes interprestados: python, php, visual basic, etc...
+* **IP**: **Internet Protocol** es la capa de red por debajo de la física que permite conexiones punto a punto mediante una **dirección IP**. Aunque IP en sí es el protocolo, suele abreviarse como que "una IP" es una dirección IP, porque se usa mucho más corrientemente. Así pues una IP (en nuestro caso del ejemplo era 99.84.9.3) es un punto en internet (o red local) que identifica un host inequívocamente y sería algo así como la dirección física de una casa o bloque de pisos en una localidad dada.
 * **Librería**: Pieza o parte de código desarrollado para poderse llamar desde el código fuente que se está desarrollando que proporciona una ayuda a nuestra aplicación para aplicar funcionalidades bien establecidas, evitando así errores y que se pueden reutilizar en otros poryectos. Se llama desde el código fuente del proyecto a demanda, y no viceversa, y se pueden utilizar como y cuando se quiera. Para ello hay que importarlas y copiarlas primero o generarlas mediante herramientas automatizadas de consola de descarga de paquetes como `npm` (node), `composer` (php) o `maven` (java). Suelen estar bien depuradas y ser seguras para los desarrolladores si están en constante proceso de evolución y mejora.
 	- Ejemplo real: **lodash**, es una librería porque lo indica el pripio fabricante, y su forma de trabajar es que tenemos que llamarla nosotros explícitamente e invocar a las funciones y métodos que contiene.
 * **PID**: Process Identifier. Es un número único y aleatorio que asigna el propio SO a un proceso en ejecución, para identificarlo por un número entero de forma única e inequívoca, no tiene por qué ocupar el mismo PID un proceso que se ejecute una y otra vez.
@@ -494,5 +625,7 @@ Contesta cada una en 1-2 líneas como máximo:
 * **Servicio**: Punto en red de llamada que proporciona una interfaz de comunicación de datos entre la aplicación y un servidor, pero no está pensado para que el usuario o humano interactúe con él. Se comunica mediante una **API** que los propios desarrolladores del servicio otorgan a los desarrolladores para que sepan como se utilizan.
 	- Ejemplo real: **api.stripe.com**, por convenito, todas las url que empiezan con **api** vienen a denotar que es un servicio web que proporciona un punto de entrada de datos y se usa como **API**, mediante llamadas concretas cerradas, datos enviados y datos devueltos en remoto.
 * **Runtime**: Entorno de ejecución que es capaz de interpretar, leer y ejecutar bytecode propios de su lenguaje y ejecutar los programas. Son ejemplo de runtime JVM (Java Virtual Machine) y Node.js.
+* **Servidor**: Es un punto de acceso remoto o local que está esperando conexiones por un puesto. Es por tanto "el que escucha". Espera peticiones a través de un puerto TCP/UPD y en caso de conexión exitosa devuelve los datos de respuesta, interpretando la entrada y actuando en consecuencia. A su vez puede ser que el propio servidor tenga que ser cliente de por ejemplo una base de datos para obtener los datos de respuesta, así que actuaría a su vez como cliente (es lo más común). En caso de que los datos esperados no sean válidos puede devolver una salida con el error o en caso de ser servidor web un código de error HTTP y no informar de nada más. En el caso nuestro hemos accedido a `https://www.tokioschool.com`.
 * **Sistema operativo**: Es el que maneja los dispositivos a bajo nivel y hace de puente entre el usuario y estos dispositivos. Cualquier llamada a un dispositivo de bajo nivel tiene que pasar por el sistema operativo previamente, no se puede acceder directamente a disco ni memoria RAM sin que el sistema de permiso previo porque es quien controla las zonas de bloqueo de memoria o qué parte del disco está libre u ocupado. Es el equivalente a un chef de cocina que orquestra todos los componentes y personal. No existe un medidor de esta parte, que mencione su estado de ocupación.
+* **URL**: Uniform Resourece Identifier. Es la dirección web completa que se pone en la barra del navegador que identifica la web que se va a mostrar. Tiene sus partes, algunas que son opcionales pero suele incluir el formato `<protocolo>://<host y dominio>:<puerto>/<path o destino>?<consulta querystring>#<fragmento>`. Su forma más báscia es `<protocolo>://<host>` donde se asume que si es petición `http` se usa el puerto 80 (en desuso) y si est `https` el 443.
 * **UTF-8**. Es una forma de intrepretar o codificar **Unicode**, permite compatibilidad con ASCII puro al 100%, de forma que un texto 100% en ASCII se verá igual en UTF-8 que en ASCII sin necesidad de recodificar. Incluye un formato tan elegante y sencillo que permite no solo que al abrirlo en cualquier otra codificación se intuya todos los caracteres de ASCII normal, sino que además permite cientos de miles de caractres extra incluyeno emoticonos, a costa de requerir algo de espacio extra. En concreto los caracteres de países, acentuados o especiales ocupan un byte extra (2 en total) y los emojis 4 (que no podrían ser representados en ASCII normal ni extendido). En el ejemplo del ejercicio la letra `ñ` ocupaba 2 bytes: `c3 b1`, mientras que el emoji de cara sonriente ocupaba 4.
