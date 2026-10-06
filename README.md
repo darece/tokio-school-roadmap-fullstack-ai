@@ -580,14 +580,200 @@ Etiqueta cada flecha con lo que está pasando ("pregunta IP", "devuelve IP", "ab
 
 **Entregable del paso 7**: captura o foto del diagrama.
 
+----
 
+# Tema 7. Conversaciones HTTP en vivo — De DevTools a curl
 
+## Tarea 1. Observa una navegación real con DevTools
 
+Abre Chrome (Firefox o Safari también valen), pulsa **F12** o **Cmd+Opt+I** (macOS) y ve a la pestaña **Network**. Asegúrate de tener activada la casilla **Preserve log** para que no se borren las peticiones al cambiar de página.
 
+Navega a <https://github.com> (o <https://tokioschool.com>). Vas a ver **decenas** de peticiones: HTML, CSS, JavaScript, imágenes, fuentes, APIs internas. Elige una petición de tipo `document` (la primera, la del HTML principal) y rellena la tabla:
 
++------------+--------------------+
+|Pieza		| Valor que ves		|
++------------+------------------+
+|URL completa ||
+|Método||
+|Código de estado||
+|Content-Type de la respuesta ||
+|Server (si aparece)||
+|¿Hay alguna Set-Cookie ? Cita una si la ves||
 
+**Entregable del paso 1**: la tabla rellena + captura de la pestaña Network.
 
+## Tarea 2. Cinco peticiones con curl
 
+En tu terminal, ejecuta las cinco peticiones siguientes una a una. Por cada una, anota el código de estado y al menos una cabecera interesante de la respuesta.
+
+> 📌 En Windows, curl viene incluido en Windows 10+ desde la línea de comandos (cmd, PowerShell). Si usas WSL o macOS/Linux, funciona igual.
+
+```
+# 2.1 — GET simple a una API pública
+curl -i https://api.github.com/users/octocat
+```
+
+```
+# 2.2 — Solo cabeceras (sin cuerpo)
+curl -I https://tokioschool.com
+```
+
+```
+# 2.3 — POST con cuerpo JSON contra httpbin (devuelve eco)
+curl -i -X POST https://httpbin.org/post \
+-H "Content-Type: application/json" \
+-H "Accept: application/json" \
+-d '{"nombre":"Lucia","nivel":"junior"}'
+```
+
+```
+# 2.4 — GET con un parámetro en el query string
+curl -i "https://httpbin.org/g
+```
+
+```
+# 2.5 — Cabecera Authorization de prueba (ver que httpbin la refleja)
+curl -i https://httpbin.org/bearer \
+-H "Authorization: Bearer mi-token-de-prueba"
+```
+
+**Entregable del paso 2**: para cada una, escribe en 2-3 líneas:
+* Método y URL.
+* Código de estado recibido.
+* Una cabecera interesante de la respuesta.
+* Qué método HTTP de la tabla 1 del submódulo encaja con esta petición (lectura, creación...).
+
+## Tarea 3. Provoca tres códigos de error distintos
+
+Tu objetivo es ver cada error con tus ojos y entender por qué saltó cada uno.
+
+**3.1 Un 404 Not Found**
+
+```
+curl -i https://api.github.com/users/este-usuario-no-existe-12345
+```
+
+**3.2 Un 401 Unauthorized**
+
+```
+curl -i https://httpbin.org/bearer
+```
+
+Sin la cabecera Authorization , la API rechaza la petición. Observa el mensaje.
+
+**3.3 Un 400 Bad Request (JSON malformado)**
+
+```
+curl -i -X POST https://httpbin.org/post \
+-H "Content-Type: application/json" \
+-d '{nombre malformado}'
+```
+
+**Entregable del paso 3**: pega el código de cada uno y la primera línea del cuerpo (si la hay), y di a qué pieza del viaje señala cada error (autenticación, ruta, formato del cuerpo).
+
+## Tarea 4. Inspecciona una cookie real
+
+Entra (con DevTools abierto, pestaña **Network**) a un sitio donde ya tengas cuenta (`github.com`, `linkedin.com`, tu correo, lo que tengas a mano). **Asegúrate de estar logueado**.
+
+Recarga la página, selecciona cualquier petición a ese dominio y mira:
+* La pestaña **Headers**: busca la cabecera `Cookie` enviada por tu navegador.
+* La pestaña **Cookies** de la misma petición (Chrome la separa).
+* En **Application → Storage → Cookies** (Chrome) puedes ver todas las cookies del dominio con sus atributos.
+
+Rellena esta tabla con una cookie de sesión real (no copies el valor completo si te incomoda — basta con el nombre y los atributos):
+
++-------------+----------------+
+|Atributo 		|Valor			|
++-------------+----------------+
+|Nombre||
+|¿`HttpOnly`?| sí / no|
+|¿`Secure`?| sí / no|
+|¿`SameSite`?| Strict / Lax / None|
+|¿Cuándo expira?| fecha o "sesión"|
+|Dominio ||
++------------+------------------+
+
+**Entregable del paso 4**: la tabla rellena + captura de la sección Cookies en DevTools.
+
+----
+
+# Tema 8. Auditoría HTTPS de tres sitios
+
+## Tarea 1. Elige tres sitios y mira el candado
+
+Abre tu navegador. Visita los tres sitios siguientes (o equivalentes que prefieras):
+
+1. **Sitio grande**: https://github.com o https://wikipedia.org.
+2. **Sitio pequeño**: tu propio dominio si tienes, el de un familiar o un sitio modesto que conozcas (busca uno que sirva HTTPS).
+3. **Sitio sin HTTPS**: http://neverssl.com (existe a propósito para que se pueda probar HTTP en redes que fuerzan HTTPS).
+
+Para cada uno, rellena esta tabla:
+
++-------------+-----------------------------+--------------------------+------------------------------------+
+|Sitio 			|URL 				|			¿Candado en la barra?	| Aviso del navegador (si hay)		|
++-------------+-----------------------------+--------------------------+------------------------------------+
+|Grande || sí / no||
+|Pequeño || sí / no ||
+|Sin HTTPS |http://neverssl.com |sí / no ||
+
+**Entregable del paso 1**: la tabla rellena + 3 capturas (una por sitio) con la barra de direcciones visible.
+
+## Tarea 2. Inspecciona el certificado de uno de los sitios HTTPS
+
+Elige el sitio grande o el pequeño (el que tenga HTTPS y candado). En Chrome haz clic en el candado → "Connection is secure" → "Certificate is valid". En Firefox: clic en el candado → "Connection secure" → "More information" → "View Certificate". Verás un panel con toda la información del certificado.
+
+Rellena la tabla:
+
+|Atributo 		|Valor						|
+|-------------|-------------------------------|
+|Sitio analizado |...|
+|Emisor (CA) | p.ej., Let's Encrypt Authority X3, DigiCert, ISRG Root X1|
+|Dominio principal (Common Name o SAN) |...|
+|Otros dominios cubiertos |...|
+|Válido desde |...|
+|Válido hasta |...|
+|Algoritmo de firma |p.ej., SHA-256 with RSA Encryption|
+
+**Entregable del paso 2**: la tabla rellena + captura del panel de certificado del navegador.
+
+## Tema 3. Inspecciona el certificado desde la terminal
+
+Ejecuta este comando, sustituyendo el dominio por uno de los HTTPS que elegiste:
+```
+openssl s_client -connect github.com:443 -servername github.com < /dev/null 2>/dev/null |
+openssl x509 -noout -subject -issuer -dates
+```
+
+La salida muestra:
+* `subject=`: a quién pertenece el certificado.
+* `issuer=`: quién lo firmó (la CA).
+* `notBefore= / notAfter=`: fechas de validez.
+
+Para ver la cadena completa de certificados (servidor → CA intermedia → raíz):
+```
+openssl s_client -connect github.com:443 -servername github.com -showcerts < /dev/null
+2>/dev/null | grep -E "subject=|issuer="
+```
+
+**Entregable del paso 3**: pega ambas salidas y comenta en 1-2 líneas cuántos certificados conforman la cadena.
+
+## Tarea 4. Audita los tres sitios con SSL Labs
+
+Ve a <https://www.ssllabs.com/ssltest/> y mete los **dos sitios HTTPS** de los pasos anteriores. El análisis tarda 1-3 minutos por sitio. Mientras esperas a uno, puedes lanzar el siguiente.
+
+Para el sitio HTTP (neverssl.com) SSL Labs no podrá analizarlo (no hay TLS), así que en ese basta con anotar el resultado del paso 1.
+
+Rellena esta tabla:
+
+|Sitio 		|Nota SSL Labs 	| Observación principal (la primera que destaca)|
+|-----------|---------------|-----------------------------------------------|
+|Grande 	|A+ / A / B / … |p.ej., TLS 1.3 activo, HSTS habilitado|
+|Pequeño 	|A+ / A / B / … |p.ej., falta HSTS, soporta TLS 1.1 antiguo|
+|Sin HTTPS 	|N/A 			|No tiene TLS; el navegador marca "Not secure"|
+
+Compara los dos sitios analizados: ¿cuál saca mejor nota? ¿En qué se diferencia su configuración?
+
+**Entregable del paso 4**: las dos capturas de SSL Labs (al menos la parte superior con la nota) + dos líneas comparando los dos resultados.
 
 
 
@@ -604,21 +790,30 @@ Etiqueta cada flecha con lo que está pasando ("pregunta IP", "devuelve IP", "ab
 * **Aplicación**: Es la parte que el humano interactúa con ella, fruto del desarrollo final de un proyecto y la parte bonita, visual e interactiva de esta hecha para los humanos, con botones, menús, imágenes, etc...
 	- Ejemplo real: Spotify, es una aplicación porque ofrece únicamente una interfaz gráfica y es el humano el que interactúa con ella, aunque sea una página web su forma de aplicación (menús y botones interactuables).
 * **ASCII**: American Stantardard Code for Information Interchange. Es una forma de hacer que se puedarn representar un conjunto reducido de caracteres ingleses (que no incluyen letas con acentos), número y algunos símbolos (interrogante, eclamación, almohadilla, signos...) y caracteres de control (salto de línea, pitido, vacío). Sirve para que una secuencia de bytes pueda simbolidar caracteres al ser leídos como texto, plano, pues al fin y al cabo todo son 0 y 1's en una computadora. Existe un ascii extendido por país que aprovecha que el 8o bit de la izquierda de convierta en un 1, y eso permite jugar con 127 caractres extra, así pues, podemos por ejemplo asumir que si la letra n es en ascii 01101110b en binario, 6Eh en hexa, pues al poner cambiar el 0 de delante a uno (**1**1101110b o CEh), esto que simbolice la `ñ` (aunque en realidad para ISO 8859-1 la `ñ` es F1h). **En resumen, en ascii cada caracter ocupa un byte siempre**.
+* **Autoridad de certificación (CA)**: Es una empresa o proveedor de certificados de confianza que emite certificados legales y puede ser que herede de una CA de nivel superior que confía en esta y así mediante la cadena de confianza se aceptan unos a otros. Una por ejemplo podría ser **WR2** que es la que certifica a google por ejemplo.
 * **Bit**: unidad mínima de información detectable en un ordenador, que solo puede tener dos valores: 0 o 1, o apagado y encendido.
 * **Build**: Es una herramienta o proceso de traspilación que es una especie de compilador que adapta un código fuente a un destino con un propósito específico, por ejemplo producción. Y organiza el código, paquetiza o minimiza para al final hacerlo lo más óptimo posible para su ejecución. Un ejemplo de transpilador o build es next, que traduce typescript a javascript.
 * **Byte**: secuencia de 8 bits que forman un único conjunto inseparable y es la unidad mínima de información que se permite hoy día en los ordenadores, por comidad y convenio, y porque en su forma hexadecimal lo hace muy fácil de representar, con solo dos caracteres del 0 a la F (del 0 al 15). Ej: F0h = 11110000b. Se pueden representar 255 valores posibles.
+* **Cabecera HTTP**: Son un conjunto de claves - valor que aportan metainformación entre cliente a servidor como son el tipo de envío que se realiza, tokens de autenticación así como su tipo y otra mucha información e incluso algunas que pueden inventarse. El servidor asímismo también manda cabeceras de respuesta. Sirven, entre otras para indicar al navegador y al servidor todo lo relacionado con el envío y recepción. Así a modo de ejemplo, la cabecera **Content-Type** que es obligatoria, indica el tipo **mime** que se utiliza para la transmision y recepción, siendo una muy usada `application/json` para los servicios web.
+* **Certificado**: Es un fichero firmado que actúa como DNI digital. Está asociado aun dominio, tiene fecha de caducidad y lleva la firma de una CA (autoridad certificadora). Quien confía en una CA confía pues en el certificado automáticamente, de esta forma, si un certificado hereda de una CA de nivel superior pero en el depósito local de certificados disponibles el CA por debajo no existe pero como hereda de uno que sí, pues automáticamente es aceptado. Existe una autoridad (Let's encrypt) que permite certificados gratis y automáticos.
 * **Cliente**: Es una aplicación o el que lanza una petición bajo demanda a un servidor, esperando obtener una respuesta. Literalmente "es el que llama". Puede ser tanto una app de móvil que se conecta a un servidor para obtener respuestas (**Spotify**) como un navegador (en este caso **Chorme**) que accede a una url para obtener una página web y renderizarla. Además hay clientes de consola, como **mysql** o comandos directos como **curl**.
+* **Código de estado (HTTP)**: Es otro campo que se manda en las cabeceras del protocolo HTTP como respuesta del servidor al cliente, que indican al navegador posibles acciones extra que deben emprender (como es la redirección), o si se ha producido un error interno o de autenticación. Se clasifican en números de centenas y cada dígito centenar indica el tipo de mensaje, y las decenas y unidade el subtipo. Así por ejemplo **2XX** significan códigos correctos, **4XX** son errores de cliente, **3XX** códigos de redirección y **5XX** códigos de error en el servidor.
 * **Código fuente**: Es el programa completo o fragmento de programa con una sintaxis legible a nivel humano, normalmente en inglés, que agrupa las instrucciones, datos y estructuras que formarán un programa y cada uno tiene un lenguaje diferente que dependiendo de la herramienta que lo ejecute o interprete será un lenguaje u otro, cada uno con características peculiares y diferentes a tener en cuanta para su propósito final y cliente.
+* **Cookie**: Son valores persistentes que se envían del servidor al cliente y son persistentes bajo un único dominio. Al igual que las cabeceras, son de tipo Clave-Valor, cada una tiene un nombre asociado y otros campos extra que indican el nivel de seguridad, si son procesable o cambiables por JavasScript, su fecha de caducidad (obligatorio para el tema de las sesiones). Se usan, entre otras cosas, para mantener preferencias del cliente o usuario respecto al servidor y para tokens de inicio de sesión y persistencia de esta.
 * **Compilador**: Herramienta que traduce un lenguaje de alto noviel o código fuente a lenguaje máquina interprestable por la CPU.
 * **CPU**: pieza fundamental de un ordenador, es el procesador principal que ejecuta instrucciones en lengaje máquina y tiene varios mecanismos de caché muy pequeños pero extremadamente rápidos. Es como el cocinero en una cocina que ejecuta los platos, un mismo cocinero puede trabajar en paralelo en varios platos hasta cierto límite y cierto número de platos. La forma de medirse es en % de trabajo, donde cada proceso ocupa una parte de % y si la suma de todo llega al 100% de ocupación es que está saturado de trabajo. He visto hoy algún proceso de CPU al 14% que era el administrador de tareas justo en el momento de abrirse.
 * **Disco**: la memoria permanente donde residen los datos de usuario y el propio sistema operativo. Esto equivale en una cocina al almacén donde están los productos siempre disponibles y bien almacenados y la temperatura correcta. Actualmente existen de estado sólido y duros puros mecánicos (más lentos, en órdenes de magnitud). Es la dispositivo más lento de los componnentes físicos junto con la CPU y memoria, pero su capacidad es órdenes de magnitud más elevado que la memoria RAM. Se mide en velocidad de acceso lectura o escritura en MB/s. He visto en un momento dado 0.1 MB/s aunque cuando se está copiano un archivo esto crece a miles de MB/s.
 * **DNS**: **Domain Name Server**, es un servidor que traduce un nombre de dominio (en su forma `host.ext`) a la **dirección IP** que corresponda, habiendo muchos de una forma escalonada para agilizar esta búsqueda, formando cachés, servidores intermedios y demás para que no todo dependa de uno solo y en caso de cambio de este haya una propagación entre todos los servidores afectados por el cambio en un tiempo relativamente rápido.
 * **Framework**: Código que proporciona un punto de partida inicial a un proyecto y una estructura sólida que se utiliza para llamar al código que se genera a posteriori de su implantación y permite un punto de partida mucho más avanzado obviando los detalles de más bajo nivel y que en definitiva sirve para agilizar en mucho tiempo la creación de proyectos respecto como se hacía con código nativo. Es el _framework_ el que llama al código, no al revés, y hay que seguir las normas y criterios establecidos para que la aplicación funcione. Un framework es algo bastante pesados con muchas piezas interconectadas y utiliza normalmente muchas o varias librerías para poder funcionar correctamente.
 	- Ejemplo real: **Django**, siendo para Python es un popular framework que está tomando bastante fama para desarrollo web rápido con sus ventajas e inconvenientes respecto a **Flask**. Es un framework porque proporciona la base que llamará a nuestro código creando rutas web, controladores, vistas y modelos.
+* **Handshake TLS**: Es el protocolo que se usa de 4 pasos para establecer una comunicación segura por TLS. Los pasos con establecer el cifrado que se usa, recibir el certificado, verificarlo y establecer una clave de sesión compartida entre cliente y servidor.
+* **HTTP**: Hypertext Transfer Protocol. Es el protocolo para la transmisión de contenido HTML (páginas web) entre navegadores y servidores web. Este protocolo incluye informacion extra en unas cabeceras tanto de envío como de respuesta que aporta información extra y que lo hace mucho más flexible y con información para el cliente muy valiosa. Permite especificar un método de envío que indica al servidor la operación o acción que realizará a nivel de datos, así como el tipo **mime** de los datos enviados y códigos de respuesta (todo bien, no autorizado, errores, entre otros).
+* **HTTPS**: **Secure HTTP**, es el tráfico que circula por la red pero de forma encriptada usando certificados y TLS, que solo garantiza que los datos estén encriptados, no que el receptor sea un destino de confianza y no con malos propósitos (por ejemplo un ataque de phising que imita un banco y tenga el dominio **bbvvaa.es** en vez de **bbva.es** (legítimo).
 * **Intérprete**: Herramienta que ejecuta lenguaje de alto nivel o código fuente línea a línea en tiempo de ejecución para los lenguajes que así lo requieren. Son ejemplo de lengauejes interprestados: python, php, visual basic, etc...
 * **IP**: **Internet Protocol** es la capa de red por debajo de la física que permite conexiones punto a punto mediante una **dirección IP**. Aunque IP en sí es el protocolo, suele abreviarse como que "una IP" es una dirección IP, porque se usa mucho más corrientemente. Así pues una IP (en nuestro caso del ejemplo era 99.84.9.3) es un punto en internet (o red local) que identifica un host inequívocamente y sería algo así como la dirección física de una casa o bloque de pisos en una localidad dada.
 * **Librería**: Pieza o parte de código desarrollado para poderse llamar desde el código fuente que se está desarrollando que proporciona una ayuda a nuestra aplicación para aplicar funcionalidades bien establecidas, evitando así errores y que se pueden reutilizar en otros poryectos. Se llama desde el código fuente del proyecto a demanda, y no viceversa, y se pueden utilizar como y cuando se quiera. Para ello hay que importarlas y copiarlas primero o generarlas mediante herramientas automatizadas de consola de descarga de paquetes como `npm` (node), `composer` (php) o `maven` (java). Suelen estar bien depuradas y ser seguras para los desarrolladores si están en constante proceso de evolución y mejora.
 	- Ejemplo real: **lodash**, es una librería porque lo indica el pripio fabricante, y su forma de trabajar es que tenemos que llamarla nosotros explícitamente e invocar a las funciones y métodos que contiene.
+* **Método HTTP**: Son acciones que se mandan al servidor con lo que se espera que se realice en el _backend_. Estas acciones son las mismas que se realizan en una base de datos, entre otros están GET (select), POST (insert), PUT y PATCH (update) y DELETE (delete). Estos permiten, junto una misma URL que el servidor realice unas acciones determinadas u otras, simplificando así el proceso de llamadas.
 * **PID**: Process Identifier. Es un número único y aleatorio que asigna el propio SO a un proceso en ejecución, para identificarlo por un número entero de forma única e inequívoca, no tiene por qué ocupar el mismo PID un proceso que se ejecute una y otra vez.
 * **Proceso**: Es el nombre del proceso en sí, que no tiene por qué coincidir con el archivo ejecutable. Y puede tener varias instancias, por ejemplo **Google chrome** si se está ejecutando en multihilo en distintos cores, pero cada hijo tiene su PID distinto.
 * **RAM**: la memoria de trabajo del ordenador, donde viven los datos que están usando los programas ahora mismo. Es volátil y gestionada por el SO. Es como la mesa de un cocinero: caben pocas cosas, pero todas a mano. Hoy he visto Chrome consumiendo 1,8 GB de RAM en mi monitor del sistema.
@@ -627,5 +822,6 @@ Etiqueta cada flecha con lo que está pasando ("pregunta IP", "devuelve IP", "ab
 * **Runtime**: Entorno de ejecución que es capaz de interpretar, leer y ejecutar bytecode propios de su lenguaje y ejecutar los programas. Son ejemplo de runtime JVM (Java Virtual Machine) y Node.js.
 * **Servidor**: Es un punto de acceso remoto o local que está esperando conexiones por un puesto. Es por tanto "el que escucha". Espera peticiones a través de un puerto TCP/UPD y en caso de conexión exitosa devuelve los datos de respuesta, interpretando la entrada y actuando en consecuencia. A su vez puede ser que el propio servidor tenga que ser cliente de por ejemplo una base de datos para obtener los datos de respuesta, así que actuaría a su vez como cliente (es lo más común). En caso de que los datos esperados no sean válidos puede devolver una salida con el error o en caso de ser servidor web un código de error HTTP y no informar de nada más. En el caso nuestro hemos accedido a `https://www.tokioschool.com`.
 * **Sistema operativo**: Es el que maneja los dispositivos a bajo nivel y hace de puente entre el usuario y estos dispositivos. Cualquier llamada a un dispositivo de bajo nivel tiene que pasar por el sistema operativo previamente, no se puede acceder directamente a disco ni memoria RAM sin que el sistema de permiso previo porque es quien controla las zonas de bloqueo de memoria o qué parte del disco está libre u ocupado. Es el equivalente a un chef de cocina que orquestra todos los componentes y personal. No existe un medidor de esta parte, que mencione su estado de ocupación.
+* **TLS**: Es el protocolo de encriptación, antes llamado **SSL**. Actualment está de moda la versión 1.3 a la hora de redactar este glosario. Esto hace como de envoltorio al contenido claro que no debe ser mostrado a nadie más que el cliente, equivale a enviar una foto en un sobre en vez de que sea la postal en sí que viaja por el aire. Incluye 3 garantías que son **confidencialidad**, **Integridad** e **identidad el servidor**.
 * **URL**: Uniform Resourece Identifier. Es la dirección web completa que se pone en la barra del navegador que identifica la web que se va a mostrar. Tiene sus partes, algunas que son opcionales pero suele incluir el formato `<protocolo>://<host y dominio>:<puerto>/<path o destino>?<consulta querystring>#<fragmento>`. Su forma más báscia es `<protocolo>://<host>` donde se asume que si es petición `http` se usa el puerto 80 (en desuso) y si est `https` el 443.
 * **UTF-8**. Es una forma de intrepretar o codificar **Unicode**, permite compatibilidad con ASCII puro al 100%, de forma que un texto 100% en ASCII se verá igual en UTF-8 que en ASCII sin necesidad de recodificar. Incluye un formato tan elegante y sencillo que permite no solo que al abrirlo en cualquier otra codificación se intuya todos los caracteres de ASCII normal, sino que además permite cientos de miles de caractres extra incluyeno emoticonos, a costa de requerir algo de espacio extra. En concreto los caracteres de países, acentuados o especiales ocupan un byte extra (2 en total) y los emojis 4 (que no podrían ser representados en ASCII normal ni extendido). En el ejemplo del ejercicio la letra `ñ` ocupaba 2 bytes: `c3 b1`, mientras que el emoji de cara sonriente ocupaba 4.
