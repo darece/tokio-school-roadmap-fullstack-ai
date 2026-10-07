@@ -775,6 +775,87 @@ Compara los dos sitios analizados: ¿cuál saca mejor nota? ¿En qué se diferen
 
 **Entregable del paso 4**: las dos capturas de SSL Labs (al menos la parte superior con la nota) + dos líneas comparando los dos resultados.
 
+----
+
+# Tema 9. Disección de una carga de página - Del HTML al pixel
+
+## Tarea 1. Recursos descargados (Network)
+
+Elige una web pública. Recomendaciones: <https://github.com>, <https://tokioschool.com> o cualquier landing que conozcas. Evita webs muy ligeras (`example.com`) para que el ejercicio tenga miga.
+
+Abre DevTools (`F12` o `Cmd+Opt+I`), ve a la pestaña **Network**, marca la casilla **Disable cache** y la **Preserve log** si está disponible. Recarga la página con `Cmd+R` o `Ctrl+R`.
+
+Identifica los primeros **5 recursos descargados** (los de arriba del todo) y rellena esta tabla:
+
+|# |Nombre |Tipo (document, script, stylesheet, image, font, fetch…) |Tamaño |Tiempo|
+|1 ||||
+|2 ||||
+|3 ||||
+|4 ||||
+|5 ||||
+
+**Entregable del paso 1**: tabla rellena + captura de Network con la columna Waterfall
+visible.
+
+## Tarea 2. Perfil de Performance
+
+Sin cerrar DevTools, ve a la pestaña **Performance**. Pulsa el botón **Reload and start profiling** (el icono circular con flecha). Espera a que termine la grabación (Chrome la para sola al cabo de unos segundos).
+
+Cuando termine, el panel muestra un timeline con muchas barras de colores. Busca al inicio del timeline tres métricas marcadas con líneas verticales:
+* **FP / FCP** (First Contentful Paint): primer momento en que el navegador pinta contenido.
+* LCP (Largest Contentful Paint): cuándo se pintó el mayor elemento visible (suele ser una imagen o un bloque de texto grande).
+
+Y busca en la línea **Main** segmentos rojos triangulares: esas son las **long tasks** (tareas que bloquearon el hilo principal más de 50 ms).
+
+Rellena la tabla:
+
+|Métrica 				|Valor			|
+|-----------------------|:-------------:|
+|FCP 					| ms|
+|LCP					| ms|
+|Duración total grabada |s|
+|Long tasks observadas 	||
+
+**Entregable del paso 2**: tabla rellena + captura del timeline con los marcadores FCP y LCP visibles.
+
+## Tarea 3. Tamaño del DOM
+
+Ve a la pestaña **Console** y ejecuta:
+```javascript
+document.querySelectorAll('*').length;
+```
+
+Eso devuelve el número total de nodos del DOM. Apunta el resultado. Como referencia: una landing sencilla tiene 200-800 nodos; una app compleja tipo Gmail o Notion abierta en su día a día puede tener miles o decenas de miles.
+
+Ejecuta también:
+```javascript
+// Profundidad máxima del DOM (cuán anidado está)
+function maxDepth(el = document.body, d = 0) {
+	if (!el.children.length) return d;
+	return Math.max(...[...el.children].map(c => maxDepth(c, d + 1)));
+}
+maxDepth();
+```
+
+**Entregable del paso 3**: el número de nodos y la profundidad. Comenta en 1 línea si te parecen razonables para la web elegida.
+
+## Tarea 4. Procesos del navegador
+
+Abre el monitor del sistema (Administrador de tareas en Windows, Monitor de Actividad en macOS, System Monitor en Linux) y filtra/busca por "Chrome" o el navegador que estés usando. Cuenta cuántos procesos aparecen con esa única pestaña abierta.
+
+Chrome también tiene su propio Task Manager interno muy útil: **Shift+Esc** (Windows/Linux) o **Window → Task Manager** desde la barra de menú (macOS). Te muestra cuántos procesos hay, qué tipo es cada uno (Tab, Extension, GPU Process, Network Service...) y cuánto consume cada uno.
+
+Rellena:
+
+| Origen						| número			|
+|-------------------------------|:-----------------:|
+| Procesos totales con esa pestaña abierta ||
+| Procesos de tipo "Tab"		||
+| Procesos de extensiones		|
+| Memoria totla agregada de Chrome ||
+
+**Entregable del paso 4**: tabla + captura del Task Manager interno de Chrome.
+
 
 
 
@@ -804,6 +885,7 @@ Compara los dos sitios analizados: ¿cuál saca mejor nota? ¿En qué se diferen
 * **CPU**: pieza fundamental de un ordenador, es el procesador principal que ejecuta instrucciones en lengaje máquina y tiene varios mecanismos de caché muy pequeños pero extremadamente rápidos. Es como el cocinero en una cocina que ejecuta los platos, un mismo cocinero puede trabajar en paralelo en varios platos hasta cierto límite y cierto número de platos. La forma de medirse es en % de trabajo, donde cada proceso ocupa una parte de % y si la suma de todo llega al 100% de ocupación es que está saturado de trabajo. He visto hoy algún proceso de CPU al 14% que era el administrador de tareas justo en el momento de abrirse.
 * **Disco**: la memoria permanente donde residen los datos de usuario y el propio sistema operativo. Esto equivale en una cocina al almacén donde están los productos siempre disponibles y bien almacenados y la temperatura correcta. Actualmente existen de estado sólido y duros puros mecánicos (más lentos, en órdenes de magnitud). Es la dispositivo más lento de los componnentes físicos junto con la CPU y memoria, pero su capacidad es órdenes de magnitud más elevado que la memoria RAM. Se mide en velocidad de acceso lectura o escritura en MB/s. He visto en un momento dado 0.1 MB/s aunque cuando se está copiano un archivo esto crece a miles de MB/s.
 * **DNS**: **Domain Name Server**, es un servidor que traduce un nombre de dominio (en su forma `host.ext`) a la **dirección IP** que corresponda, habiendo muchos de una forma escalonada para agilizar esta búsqueda, formando cachés, servidores intermedios y demás para que no todo dependa de uno solo y en caso de cambio de este haya una propagación entre todos los servidores afectados por el cambio en un tiempo relativamente rápido.
+* **DOM**: **Document Object Model**, es la forma interna que tiene el navegador de resumir o tratar en modo abstracto el contenido de una página web o documento html formando una vista de árbol y que permite borrar nodos, intercararlos, generar nuevos y en definitiva alterar su estructura mediante javascript en tiempo real afectando al contenido dinámicamente y por ende a su visualización en tiempo real. En nuestro caso del tema 9, visitando stackoverflow obtuvimos poco menos de 8000 nodos en una página de un thread.
 * **Framework**: Código que proporciona un punto de partida inicial a un proyecto y una estructura sólida que se utiliza para llamar al código que se genera a posteriori de su implantación y permite un punto de partida mucho más avanzado obviando los detalles de más bajo nivel y que en definitiva sirve para agilizar en mucho tiempo la creación de proyectos respecto como se hacía con código nativo. Es el _framework_ el que llama al código, no al revés, y hay que seguir las normas y criterios establecidos para que la aplicación funcione. Un framework es algo bastante pesados con muchas piezas interconectadas y utiliza normalmente muchas o varias librerías para poder funcionar correctamente.
 	- Ejemplo real: **Django**, siendo para Python es un popular framework que está tomando bastante fama para desarrollo web rápido con sus ventajas e inconvenientes respecto a **Flask**. Es un framework porque proporciona la base que llamará a nuestro código creando rutas web, controladores, vistas y modelos.
 * **Handshake TLS**: Es el protocolo que se usa de 4 pasos para establecer una comunicación segura por TLS. Los pasos con establecer el cifrado que se usa, recibir el certificado, verificarlo y establecer una clave de sesión compartida entre cliente y servidor.
@@ -811,12 +893,15 @@ Compara los dos sitios analizados: ¿cuál saca mejor nota? ¿En qué se diferen
 * **HTTPS**: **Secure HTTP**, es el tráfico que circula por la red pero de forma encriptada usando certificados y TLS, que solo garantiza que los datos estén encriptados, no que el receptor sea un destino de confianza y no con malos propósitos (por ejemplo un ataque de phising que imita un banco y tenga el dominio **bbvvaa.es** en vez de **bbva.es** (legítimo).
 * **Intérprete**: Herramienta que ejecuta lenguaje de alto nivel o código fuente línea a línea en tiempo de ejecución para los lenguajes que así lo requieren. Son ejemplo de lengauejes interprestados: python, php, visual basic, etc...
 * **IP**: **Internet Protocol** es la capa de red por debajo de la física que permite conexiones punto a punto mediante una **dirección IP**. Aunque IP en sí es el protocolo, suele abreviarse como que "una IP" es una dirección IP, porque se usa mucho más corrientemente. Así pues una IP (en nuestro caso del ejemplo era 99.84.9.3) es un punto en internet (o red local) que identifica un host inequívocamente y sería algo así como la dirección física de una casa o bloque de pisos en una localidad dada.
+* **Layout**: Relacionado con el tema 9. Es el proceso posterior al **Render tree**, una vez sabe como dibujar los elementos no solo a nivel estructural (DOM) y estilístico (CSSOM), necesita saber como posicionar los elementos y su tamaño, en base a la resolución del navegador (y si se está usando en un pc o smartphone), entonces el Render tree envía a layout los datos para hacer estos cálculos finales. Es decir, es la posición y tamaño de cada elementos a visualizar. Una propiedda que dispare este proceso podría ser `width`.
 * **Librería**: Pieza o parte de código desarrollado para poderse llamar desde el código fuente que se está desarrollando que proporciona una ayuda a nuestra aplicación para aplicar funcionalidades bien establecidas, evitando así errores y que se pueden reutilizar en otros poryectos. Se llama desde el código fuente del proyecto a demanda, y no viceversa, y se pueden utilizar como y cuando se quiera. Para ello hay que importarlas y copiarlas primero o generarlas mediante herramientas automatizadas de consola de descarga de paquetes como `npm` (node), `composer` (php) o `maven` (java). Suelen estar bien depuradas y ser seguras para los desarrolladores si están en constante proceso de evolución y mejora.
 	- Ejemplo real: **lodash**, es una librería porque lo indica el pripio fabricante, y su forma de trabajar es que tenemos que llamarla nosotros explícitamente e invocar a las funciones y métodos que contiene.
 * **Método HTTP**: Son acciones que se mandan al servidor con lo que se espera que se realice en el _backend_. Estas acciones son las mismas que se realizan en una base de datos, entre otros están GET (select), POST (insert), PUT y PATCH (update) y DELETE (delete). Estos permiten, junto una misma URL que el servidor realice unas acciones determinadas u otras, simplificando así el proceso de llamadas.
+* **Paint**: Relacionado con el tema 9. Es el último paso que genera los píxeles reales en pantalla que visualizan la web final. Viene a partir del **layout**, donde lleva la estructura, estilos y colores y posicioens y tamaños de cada elemento y ya está preparado para dibujarlo por pantalla todo junto. Una propiedad CSS que dispare este proceso podría ser `color` así como `background-color`, en definitiva, cualquier propiedad CSS que no altere para nada el tamaño del elemento o página en general.
 * **PID**: Process Identifier. Es un número único y aleatorio que asigna el propio SO a un proceso en ejecución, para identificarlo por un número entero de forma única e inequívoca, no tiene por qué ocupar el mismo PID un proceso que se ejecute una y otra vez.
 * **Proceso**: Es el nombre del proceso en sí, que no tiene por qué coincidir con el archivo ejecutable. Y puede tener varias instancias, por ejemplo **Google chrome** si se está ejecutando en multihilo en distintos cores, pero cada hijo tiene su PID distinto.
 * **RAM**: la memoria de trabajo del ordenador, donde viven los datos que están usando los programas ahora mismo. Es volátil y gestionada por el SO. Es como la mesa de un cocinero: caben pocas cosas, pero todas a mano. Hoy he visto Chrome consumiendo 1,8 GB de RAM en mi monitor del sistema.
+* **Render tree**: Relacionado con el tema 9 del navegador y su funcionamiento. Es la asociación de DOM y CSSOM que es lo previo que indica al navegador como se dibujará por pantalla para que el cliente (usuario) lo vea de forma definitiva. Es el siguiente paso después del DOM que necesita el navegador para saber como dibujar los elementos en pantalla.
 * **Servicio**: Punto en red de llamada que proporciona una interfaz de comunicación de datos entre la aplicación y un servidor, pero no está pensado para que el usuario o humano interactúe con él. Se comunica mediante una **API** que los propios desarrolladores del servicio otorgan a los desarrolladores para que sepan como se utilizan.
 	- Ejemplo real: **api.stripe.com**, por convenito, todas las url que empiezan con **api** vienen a denotar que es un servicio web que proporciona un punto de entrada de datos y se usa como **API**, mediante llamadas concretas cerradas, datos enviados y datos devueltos en remoto.
 * **Runtime**: Entorno de ejecución que es capaz de interpretar, leer y ejecutar bytecode propios de su lenguaje y ejecutar los programas. Son ejemplo de runtime JVM (Java Virtual Machine) y Node.js.
