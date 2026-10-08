@@ -856,9 +856,96 @@ Rellena:
 
 **Entregable del paso 4**: tabla + captura del Task Manager interno de Chrome.
 
+----
 
+# Tema 10. Triángulo de la app que más usas - Y diagrama de tu proyecto
 
+## Terea 1. Elige una app y dibuja su triángulo
 
+Elige UNA app que uses a diario. Ejemplos sugeridos: **WhatsApp**, **Spotify**, **Notion**, **GitHub**, **Instagram**, **Twitch**. Para tres funcionalidades distintas de esa app, deduce qué crees que pasa en cada vértice del triángulo.
+
+Las funcionalidades sugeridas son:
+* **A**: ver la pantalla principal (feed, lista de chats, repositorios...).
+* **B**: hacer una búsqueda dentro de la app.
+* **C**: crear contenido (mandar un mensaje, escribir un comentario, hacer un commit, lo que aplique).
+
+Rellena esta tabla (no tienes que acertar al 100 %; lo importante es el razonamiento):
+
+| Funcionalidad | Frontend hace | Backend hace | Base de datos hace |
+|---------------|---------------|--------------|--------------------|
+|A. Pantalla principal ||||
+|B. Búsqueda ||||
+|C. Crear contenido ||||
+
+**Entregable del paso 1**: la tabla rellena con el nombre de la app elegida en el título.
+
+## Tarea 2. Hipotetiza el stack tecnológico
+
+A partir de pistas visibles desde fuera (rendimiento, comportamiento sin conexión, características de la UI, lo que digan los empleados en sus charlas técnicas o lo que puedes ver con `view-source` en su web) hipotetiza qué stack podría usar la app que has elegido:
+
+|Capa 					|Tecnología que sospechas |Justificación|
+|-----------------------|-------------------------|-------------|
+|Lenguaje del frontend 	|||
+|Framework de frontend	| React / Vue / Svelte / Otro: |||
+|Lenguaje del backend 	|Node / Python / Java / Go / Otro: |||
+|Tipo de base de datos 	|SQL / NoSQL / Mixto |||
+
+> 📌 No hace falta acertar exactamente; lo que se valora es la capacidad de razonar sobre las pistas (qué framework de UI usa Twitch se puede ver en DevTools; el stack in terno de WhatsApp aparece en charlas técnicas; etc.). Está bien marcar "no sabría decir, posibles opciones: X, Y, Z".
+
+**Entregable del paso 2**: la tabla rellena con tu razonamiento.
+
+## Tarea 3. Traza el viaje de UNA acción concreta
+
+Elige UNA acción concreta y traza paso a paso qué crees que ocurre en cada vértice del triángulo. Sugerencias:
+* **WhatsApp**: enviar un mensaje a un contacto.
+* **Spotify**: pulsar "Reproducir" en una canción.
+* **GitHub**: hacer push de un commit.
+* **Notion**: crear una página nueva.
+
+Numera los pasos de 1 a 8 aproximadamente, indicando para cada uno qué vértice está actuando. Ejemplo de estilo:
+```
+1. (FRONT) El usuario toca el botón de enviar.
+2. (FRONT) La app valida que el mensaje no esté vacío.
+3. (FRONT → BACK) Envía POST /messages por HTTPS con el cuerpo y la
+sesión.
+4. (BACK) Valida sesión y permiso (el remitente puede escribir a este
+destinatario).
+5. (BACK → DB) Inserta el mensaje en la BD asociado a la conversación.
+6. (BACK) Notifica al destinatario (push notification, websocket…).
+7. (BACK → FRONT) Responde 201 al remitente.
+8. (FRONT) Muestra el mensaje como entregado.
+```
+
+**Entregable del paso 3**: tu versión numerada de la acción elegida.
+
+## Tarea 4. Decisiones de "dónde poner cada cosa"
+
+Para una **app de pedidos online ficticia**, decide dónde colocarías cada una de estas tres responsabilidades. Justifica en 1-2 líneas.
+
+|Responsabilidad 														|Frontend 	| Backend 	| BD|
+|-----------------------------------------------------------------------|:---------:|:---------:|:--:
+|Validar que la cantidad de un producto en el carrito no es negativa	| sí / no | sí / no | sí / no|
+|Calcular el IVA y el total final del pedido antes de cobrar 			|sí / no | sí / no | sí / no|
+|Recordar la preferencia de tema visual (claro/oscuro) del usuario 		|sí / no | sí / no | sí / no|
+
+Tras la tabla, escribe en 3-4 líneas qué patrón ves: ¿qué tipo de decisiones se quedan solo en el front?, ¿cuáles requieren back obligatorio?, ¿cuándo aparece la BD?
+
+**Entregable del paso 4**: tabla + reflexión.
+
+## Tarea 5. Diagrama de arquitectura de tu proyecto del Roadmap
+
+Este paso es el **entregable principal del módulo 2** del Roadmap. Vas a dibujar un diagrama de arquitectura "rough" (versión preliminar) de la aplicación que tú vas a construir en el Roadmap.
+
+El diagrama debe incluir, como mínimo:
+* El **frontend** (qué dispositivo lo ejecuta, qué framework usarás).
+* El **backend** (qué lenguaje/framework, qué endpoints principales).
+* La **base de datos** (qué tipo, qué entidades principales).
+* Las **flechas** entre ellos indicando qué viaja en cada dirección (HTTPS + JSON, SQL, etc.).
+* Cualquier **servicio externo** que vayas a integrar (autenticación, emails, pagos, AI…).
+
+Puedes usar Excalidraw (recomendado), Miro, draw.io, papel + foto, lo que te resulte más cómodo. El objetivo no es elegancia gráfica sino que cada pieza esté nombrada y las flechas tengan etiqueta.
+
+**Entregable del paso 5**: captura del diagrama.
 
 
 
@@ -872,6 +959,9 @@ Rellena:
 	- Ejemplo real: Spotify, es una aplicación porque ofrece únicamente una interfaz gráfica y es el humano el que interactúa con ella, aunque sea una página web su forma de aplicación (menús y botones interactuables).
 * **ASCII**: American Stantardard Code for Information Interchange. Es una forma de hacer que se puedarn representar un conjunto reducido de caracteres ingleses (que no incluyen letas con acentos), número y algunos símbolos (interrogante, eclamación, almohadilla, signos...) y caracteres de control (salto de línea, pitido, vacío). Sirve para que una secuencia de bytes pueda simbolidar caracteres al ser leídos como texto, plano, pues al fin y al cabo todo son 0 y 1's en una computadora. Existe un ascii extendido por país que aprovecha que el 8o bit de la izquierda de convierta en un 1, y eso permite jugar con 127 caractres extra, así pues, podemos por ejemplo asumir que si la letra n es en ascii 01101110b en binario, 6Eh en hexa, pues al poner cambiar el 0 de delante a uno (**1**1101110b o CEh), esto que simbolice la `ñ` (aunque en realidad para ISO 8859-1 la `ñ` es F1h). **En resumen, en ascii cada caracter ocupa un byte siempre**.
 * **Autoridad de certificación (CA)**: Es una empresa o proveedor de certificados de confianza que emite certificados legales y puede ser que herede de una CA de nivel superior que confía en esta y así mediante la cadena de confianza se aceptan unos a otros. Una por ejemplo podría ser **WR2** que es la que certifica a google por ejemplo.
+* **Backend**: Relacionado con tema 10. Es la parte que se ejecuta en el servidor y conlleva la lógica de negocio y hace de puente mayoritariamente entre cliente y base de datos, aceptando y comprobando las peticiones de entrada, procesándolas y devolviendo la salida en forma visual (si es página web pura) o json soalmente si es un servicio REST. También implica todo lo relacionado con la seguridad, comprobación de datos y formato correcto, autenticación y autorización mediante cookies o tokens de sesión (p.e. Bearer). En el caso de nuestro proyecto de ejemplo es el encargado de gestionar peticiones json, acceder a la base de datos y devolver la respuesta también en json.
+* **Base de datos NoSQL**: Relacionado con tema 10. Rompen el esquema relacional para conseguir otra ventajas, son sistemas con una relación entre tablas no tan rígida como las relacionales y basadas en elementos sueltos y con cierta flexibilidad estructural. Son ejemplos de ellas **MongoDB** (documental) y **Redis** (clave-valor).
+* **Base de datos relacional**: Relacionado con tema 10. Son bases de datos cuya estructura sigue unas normas establecidas bastante rígidas basadas en tablas, campos, índices y claves foráneas, donde se evita a toda costa la redundancia y son las establecidas hace bastnates años, cuyo lenguaje de acceso y trabajo es **SQL**, que a pesar de ser un estándard para cada motor tiene sus peculiaridades que lo hacen diferente entre todas.
 * **Bit**: unidad mínima de información detectable en un ordenador, que solo puede tener dos valores: 0 o 1, o apagado y encendido.
 * **Build**: Es una herramienta o proceso de traspilación que es una especie de compilador que adapta un código fuente a un destino con un propósito específico, por ejemplo producción. Y organiza el código, paquetiza o minimiza para al final hacerlo lo más óptimo posible para su ejecución. Un ejemplo de transpilador o build es next, que traduce typescript a javascript.
 * **Byte**: secuencia de 8 bits que forman un único conjunto inseparable y es la unidad mínima de información que se permite hoy día en los ordenadores, por comidad y convenio, y porque en su forma hexadecimal lo hace muy fácil de representar, con solo dos caracteres del 0 a la F (del 0 al 15). Ej: F0h = 11110000b. Se pueden representar 255 valores posibles.
@@ -888,6 +978,7 @@ Rellena:
 * **DOM**: **Document Object Model**, es la forma interna que tiene el navegador de resumir o tratar en modo abstracto el contenido de una página web o documento html formando una vista de árbol y que permite borrar nodos, intercararlos, generar nuevos y en definitiva alterar su estructura mediante javascript en tiempo real afectando al contenido dinámicamente y por ende a su visualización en tiempo real. En nuestro caso del tema 9, visitando stackoverflow obtuvimos poco menos de 8000 nodos en una página de un thread.
 * **Framework**: Código que proporciona un punto de partida inicial a un proyecto y una estructura sólida que se utiliza para llamar al código que se genera a posteriori de su implantación y permite un punto de partida mucho más avanzado obviando los detalles de más bajo nivel y que en definitiva sirve para agilizar en mucho tiempo la creación de proyectos respecto como se hacía con código nativo. Es el _framework_ el que llama al código, no al revés, y hay que seguir las normas y criterios establecidos para que la aplicación funcione. Un framework es algo bastante pesados con muchas piezas interconectadas y utiliza normalmente muchas o varias librerías para poder funcionar correctamente.
 	- Ejemplo real: **Django**, siendo para Python es un popular framework que está tomando bastante fama para desarrollo web rápido con sus ventajas e inconvenientes respecto a **Flask**. Es un framework porque proporciona la base que llamará a nuestro código creando rutas web, controladores, vistas y modelos.
+* **Frontend**: Relacionado con tema 10. (Citar la app del paso 1). Es la parte que se ejecuta en el cliente, y como tal es visible por el cliente y a su vez alterable en sus datos finales. Puede ser desde un navegador web que renderiza una página pura en HTML o mediante DOM y javascript a una app de smartphone. Suele comunicarse por internet mediante webwservices y protocolo REST con un servidor que hace de backend. Un ejemplo de app puede ser **Telegram** que tiene 3 versiones: desktop, web y app de móvil incluido Android y Apple iOS.
 * **Handshake TLS**: Es el protocolo que se usa de 4 pasos para establecer una comunicación segura por TLS. Los pasos con establecer el cifrado que se usa, recibir el certificado, verificarlo y establecer una clave de sesión compartida entre cliente y servidor.
 * **HTTP**: Hypertext Transfer Protocol. Es el protocolo para la transmisión de contenido HTML (páginas web) entre navegadores y servidores web. Este protocolo incluye informacion extra en unas cabeceras tanto de envío como de respuesta que aporta información extra y que lo hace mucho más flexible y con información para el cliente muy valiosa. Permite especificar un método de envío que indica al servidor la operación o acción que realizará a nivel de datos, así como el tipo **mime** de los datos enviados y códigos de respuesta (todo bien, no autorizado, errores, entre otros).
 * **HTTPS**: **Secure HTTP**, es el tráfico que circula por la red pero de forma encriptada usando certificados y TLS, que solo garantiza que los datos estén encriptados, no que el receptor sea un destino de confianza y no con malos propósitos (por ejemplo un ataque de phising que imita un banco y tenga el dominio **bbvvaa.es** en vez de **bbva.es** (legítimo).
@@ -908,5 +999,6 @@ Rellena:
 * **Servidor**: Es un punto de acceso remoto o local que está esperando conexiones por un puesto. Es por tanto "el que escucha". Espera peticiones a través de un puerto TCP/UPD y en caso de conexión exitosa devuelve los datos de respuesta, interpretando la entrada y actuando en consecuencia. A su vez puede ser que el propio servidor tenga que ser cliente de por ejemplo una base de datos para obtener los datos de respuesta, así que actuaría a su vez como cliente (es lo más común). En caso de que los datos esperados no sean válidos puede devolver una salida con el error o en caso de ser servidor web un código de error HTTP y no informar de nada más. En el caso nuestro hemos accedido a `https://www.tokioschool.com`.
 * **Sistema operativo**: Es el que maneja los dispositivos a bajo nivel y hace de puente entre el usuario y estos dispositivos. Cualquier llamada a un dispositivo de bajo nivel tiene que pasar por el sistema operativo previamente, no se puede acceder directamente a disco ni memoria RAM sin que el sistema de permiso previo porque es quien controla las zonas de bloqueo de memoria o qué parte del disco está libre u ocupado. Es el equivalente a un chef de cocina que orquestra todos los componentes y personal. No existe un medidor de esta parte, que mencione su estado de ocupación.
 * **TLS**: Es el protocolo de encriptación, antes llamado **SSL**. Actualment está de moda la versión 1.3 a la hora de redactar este glosario. Esto hace como de envoltorio al contenido claro que no debe ser mostrado a nadie más que el cliente, equivale a enviar una foto en un sobre en vez de que sea la postal en sí que viaja por el aire. Incluye 3 garantías que son **confidencialidad**, **Integridad** e **identidad el servidor**.
+* **Transacción**: Relacionado con el tema 10. Es una forma de proteger los datos y evitar una inconsistencia que puede hacer caer un sistema o llevarlo a un estado no deseado con grandes repercusiones. Es una operación que se basta en un "todo o nada", es decir, o se ejeuctan todas las operaciones o si falla una se devuelve al estado anterior sin alterar ningún valor. Se basa en operaciones tipo "COMMIT" (ha ido bien), "TRANSACTION" (inicio de transacción) y "ROLLBACK" (se produjo un error en medio y debe deshacerse todos los cambios). Un ejemplo concreto puede ser una tansacción monetaria en el que por ejemplo un cliente hace una compra de un producto y le quitamos de su saldo el precio del producto, pero luego debeos ingresar ese dinero en caja, en otra tabla o base de datos, qué ocurre si por ejemplo restamos el saldo al cliente pero no lo incrementamos en caja? Que a efectos nuestros, el cliente ha robado el producto, pero él ve su saldo reflejado como comprado el producto.
 * **URL**: Uniform Resourece Identifier. Es la dirección web completa que se pone en la barra del navegador que identifica la web que se va a mostrar. Tiene sus partes, algunas que son opcionales pero suele incluir el formato `<protocolo>://<host y dominio>:<puerto>/<path o destino>?<consulta querystring>#<fragmento>`. Su forma más báscia es `<protocolo>://<host>` donde se asume que si es petición `http` se usa el puerto 80 (en desuso) y si est `https` el 443.
 * **UTF-8**. Es una forma de intrepretar o codificar **Unicode**, permite compatibilidad con ASCII puro al 100%, de forma que un texto 100% en ASCII se verá igual en UTF-8 que en ASCII sin necesidad de recodificar. Incluye un formato tan elegante y sencillo que permite no solo que al abrirlo en cualquier otra codificación se intuya todos los caracteres de ASCII normal, sino que además permite cientos de miles de caractres extra incluyeno emoticonos, a costa de requerir algo de espacio extra. En concreto los caracteres de países, acentuados o especiales ocupan un byte extra (2 en total) y los emojis 4 (que no podrían ser representados en ASCII normal ni extendido). En el ejemplo del ejercicio la letra `ñ` ocupaba 2 bytes: `c3 b1`, mientras que el emoji de cara sonriente ocupaba 4.
